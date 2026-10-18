@@ -47,7 +47,12 @@ __global__ void query_three_nn_by_stacked_local_idxs_kernel(
     float center_y = new_xyz_grid_centers[1];
     float center_z = new_xyz_grid_centers[2];
 
+#if defined(BUILD_ON_MR)
+    // MR-only FP32 workaround. CQ must retain the original FP64 sentinels.
+    float best1 = 1e30f, best2 = 1e30f, best3 = 1e30f;
+#else
     double best1 = 1e40, best2 = 1e40, best3 = 1e40;
+#endif
     int besti1 = -1, besti2 = -1, besti3 = -1;
     for (int k = 0; k < neighbor_length; k++){
         int cur_neighbor_idx = stack_neighbor_idxs[k];

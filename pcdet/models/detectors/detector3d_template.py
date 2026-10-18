@@ -358,6 +358,17 @@ class Detector3DTemplate(nn.Module):
             self.load_state_dict(state_dict)
         return state_dict, update_model_state
 
+    @staticmethod
+    def _checkpoint_model_state(checkpoint):
+        """Accept training checkpoints and tensor-only published state dicts."""
+        if isinstance(checkpoint, dict):
+            if 'model_state' in checkpoint:
+                return checkpoint['model_state']
+            if checkpoint and all(isinstance(value, torch.Tensor)
+                                  for value in checkpoint.values()):
+                return checkpoint
+        raise ValueError('Checkpoint must contain model_state or a tensor state_dict')
+
     def load_params_from_file(self, filename, logger, to_cpu=False, pre_trained_path=None):
         if not os.path.isfile(filename):
             raise FileNotFoundError
@@ -365,10 +376,10 @@ class Detector3DTemplate(nn.Module):
         logger.info('==> Loading parameters from checkpoint %s to %s' % (filename, 'CPU' if to_cpu else 'GPU'))
         loc_type = torch.device('cpu') if to_cpu else None
         checkpoint = torch.load(filename, map_location=loc_type)
-        model_state_disk = checkpoint['model_state']
+        model_state_disk = self._checkpoint_model_state(checkpoint)
         if not pre_trained_path is None:
             pretrain_checkpoint = torch.load(pre_trained_path, map_location=loc_type)
-            pretrain_model_state_disk = pretrain_checkpoint['model_state']
+            pretrain_model_state_disk = self._checkpoint_model_state(pretrain_checkpoint)
             model_state_disk.update(pretrain_model_state_disk)
             
         version = checkpoint.get("version", None)

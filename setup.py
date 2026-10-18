@@ -1,7 +1,10 @@
 import os
 import subprocess
 
-from setuptools import find_packages, setup
+import torch
+from torch.utils import cpp_extension
+
+from setuptools import find_namespace_packages, setup
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
 
@@ -14,10 +17,35 @@ def get_git_commit_number():
     return git_commit_number
 
 
+def corex_build_macros():
+    """Use the same platform/architecture gates as cmake-corex-template."""
+    if not getattr(torch, "corex", False):
+        return []
+    arch = getattr(torch, "corex_arch", None)
+    targets = {"ivcore11": "BUILD_ON_MR", "ivcore20": "BUILD_ON_QS",
+               "ivcore30": "BUILD_ON_CQ"}
+    requested = os.environ.get("CMAKE_CUDA_ARCHITECTURES", arch)
+    if requested not in targets:
+        raise RuntimeError(f"Unsupported Corex target: {requested}")
+    if requested != arch:
+        raise RuntimeError(f"Corex target {requested} does not match PyTorch target {arch}")
+    if arch == "ivcore30":
+        # This SDK injects --skip-double even for CQ. Preserve CQ FP64.
+        flags = cpp_extension.COMMON_COREX_FLAGS
+        while "--skip-double" in flags:
+            i = flags.index("--skip-double")
+            if i and flags[i - 1] == "-mllvm":
+                del flags[i - 1:i + 1]
+            else:
+                del flags[i]
+    return [("BUILD_ON_ILUVATAR", "1"), (targets[arch], "1")]
+
+
 def make_cuda_ext(name, module, sources):
     cuda_ext = CUDAExtension(
         name='%s.%s' % (module, name),
-        sources=[os.path.join(*module.split('.'), src) for src in sources]
+        sources=[os.path.join(*module.split('.'), src) for src in sources],
+        define_macros=corex_build_macros()
     )
     return cuda_ext
 
@@ -45,13 +73,14 @@ if __name__ == '__main__':
             'scikit-image',
             'tqdm',
             'SharedArray',
+            'av2==0.3.6',
             # 'spconv',  # spconv has different names depending on the cuda version
         ],
 
         author='Shaoshuai Shi',
         author_email='shaoshuaics@gmail.com',
         license='Apache License 2.0',
-        packages=find_packages(exclude=['tools', 'data', 'output']),
+        packages=find_namespace_packages(include=['pcdet*']),
         cmdclass={
             'build_ext': BuildExtension,
         },

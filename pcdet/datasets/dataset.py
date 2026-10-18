@@ -299,7 +299,9 @@ class DatasetTemplate(torch_data.Dataset):
 
                         images.append(image_pad)
                     ret[key] = np.stack(images, axis=0)
-                elif key in ['calib']:
+                elif key in ['calib', 'img_process_infos']:
+                    # Image processing records mix scalars and crop tuples;
+                    # keep them as metadata instead of stacking ragged arrays.
                     ret[key] = val
                 elif key in ["points_2d"]:
                     max_len = max([len(_val) for _val in val])

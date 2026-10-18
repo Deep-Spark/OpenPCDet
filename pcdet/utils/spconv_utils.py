@@ -1,7 +1,7 @@
 from typing import Set
 
 import spconv
-if float(spconv.__version__[2:]) >= 2.2:
+if tuple(map(int, spconv.__version__.split("+", 1)[0].split(".")[:2])) >= (2, 2):
     spconv.constants.SPCONV_USE_DIRECT_TABLE = False
     
 try:

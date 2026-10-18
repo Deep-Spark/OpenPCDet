@@ -48,7 +48,12 @@ __global__ void three_nn_kernel_stack(int batch_size, int N, int M, const float 
     float uy = unknown[1];
     float uz = unknown[2];
 
+#if defined(BUILD_ON_MR)
+    // MR-only FP32 workaround. CQ must retain the original FP64 sentinels.
+    float best1 = 1e30f, best2 = 1e30f, best3 = 1e30f;
+#else
     double best1 = 1e40, best2 = 1e40, best3 = 1e40;
+#endif
     int besti1 = 0, besti2 = 0, besti3 = 0;
     for (int k = 0; k < cur_num_known_points; ++k) {
         float x = known[k * 3 + 0];

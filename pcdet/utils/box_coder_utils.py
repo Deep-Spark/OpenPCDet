@@ -147,7 +147,7 @@ class PointResidualCoder(object):
         self.code_size = code_size
         self.use_mean_size = use_mean_size
         if self.use_mean_size:
-            self.mean_size = torch.from_numpy(np.array(kwargs['mean_size'])).cuda().float()
+            self.mean_size = torch.from_numpy(np.array(kwargs['mean_size'])).float().cuda()
             assert self.mean_size.min() > 0
 
     def encode_torch(self, gt_boxes, points, gt_classes=None):

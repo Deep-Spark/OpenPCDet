@@ -9,9 +9,12 @@ venv/
 *.so
 *.yaml
 *.sh
+!build_corex.sh
 *.pth
 *.pkl
 *.zip
 *.bin
 output
 version.py
+/validation_complete/
+/validation_model_zoo/
