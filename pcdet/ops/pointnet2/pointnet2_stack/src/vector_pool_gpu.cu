@@ -1,3 +1,6 @@
+/* Modifications Copyright (c) 2026, Shanghai Iluvatar CoreX Semiconductor Co., Ltd. */
+/* This file has been modified from its original version. */
+
 /*
 Vector-pool aggregation based local feature aggregation for point cloud.
 PV-RCNN++: Point-Voxel Feature Set Abstraction With Local Vector Representation for 3D Object Detection
