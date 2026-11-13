@@ -1,3 +1,6 @@
+# Modifications Copyright (c) 2026, Shanghai Iluvatar CoreX Semiconductor Co., Ltd.
+# This file has been modified from its original version.
+
 from collections import defaultdict
 from pathlib import Path
 

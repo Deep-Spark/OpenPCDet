@@ -1,3 +1,6 @@
+/* Modifications Copyright (c) 2026, Shanghai Iluvatar CoreX Semiconductor Co., Ltd. */
+/* This file has been modified from its original version. */
+
 #ifndef _CUDA_UTILS_H
 #define _CUDA_UTILS_H
 
